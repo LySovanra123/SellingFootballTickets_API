@@ -17,5 +17,6 @@ namespace SellingFootballTickets_API.Models
         public string Phone { get; set; }
         [Required]
         public bool Active { get; set; }
+        public ICollection<Orders> Orders { get; set; }
     }
 }

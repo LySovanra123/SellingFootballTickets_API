@@ -11,24 +11,24 @@ namespace SellingFootballTickets_API.Controllers
     public class UserController : ControllerBase
     {
 
-        private readonly UserContext _userContext;
+        private readonly ServiceContext _context;
 
-        public UserController(UserContext userContext)
+        public UserController(ServiceContext context)
         {
-            _userContext = userContext;
+            _context = context;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Users>>> GetUsers()
         {
-            var users = await _userContext.Users.ToListAsync();
+            var users = await _context.users.ToListAsync();
             return Ok(users);
         }
         [HttpPost]
         public async Task<ActionResult<Users>> CreateUser(Users user)
         {
-            _userContext.Users.Add(user);
-            await _userContext.SaveChangesAsync();
+            _context.users.Add(user);
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
         
         }
@@ -39,10 +39,10 @@ namespace SellingFootballTickets_API.Controllers
             {
                 return BadRequest();
             }
-            _userContext.Entry(user).State = EntityState.Modified;
+            _context.Entry(user).State = EntityState.Modified;
             try
             {
-                await _userContext.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {

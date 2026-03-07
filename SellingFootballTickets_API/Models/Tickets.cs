@@ -20,5 +20,6 @@ namespace SellingFootballTickets_API.Models
         public char Row { get; set; }
         public int Seat { get; set; }
         public bool IsAvailable { get; set; }
+        public ICollection<OrderTicket> OrderTickets { get; set; }
     }
 }

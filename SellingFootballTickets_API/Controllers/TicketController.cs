@@ -9,23 +9,23 @@ namespace SellingFootballTickets_API.Controllers
     [ApiController]
     public class TicketController : ControllerBase
     {
-        private readonly TicketContext ticketContext;
+        private readonly ServiceContext _context;
 
-        public TicketController(TicketContext ticketContext)
+        public TicketController(ServiceContext context)
         {
-            this.ticketContext = ticketContext;
+            _context = context;
         }
         [HttpGet]
         public async Task<ActionResult<List<Tickets>>> Get()
         {
-            return Ok(await ticketContext.Tickets.ToListAsync());
+            return Ok(await _context.tickets.ToListAsync());
         }
         [HttpPost]
         public async Task<ActionResult<List<Tickets>>> AddTicket(Tickets ticket)
         {
-            ticketContext.Tickets.Add(ticket);
-            await ticketContext.SaveChangesAsync();
-            return Ok(await ticketContext.Tickets.ToListAsync());
+            _context.tickets.Add(ticket);
+            await _context.SaveChangesAsync();
+            return Ok(await _context.tickets.ToListAsync());
         }
         
     }
