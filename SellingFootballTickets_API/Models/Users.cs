@@ -2,7 +2,7 @@
 
 namespace SellingFootballTickets_API.Models
 {
-    public class User
+    public class Users
     {
         [Key]
         public int Id { get; set; }
