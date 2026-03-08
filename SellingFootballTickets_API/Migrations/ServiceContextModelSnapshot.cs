@@ -141,9 +141,6 @@ namespace SellingFootballTickets_API.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
                     b.Property<string>("Row")
                         .IsRequired()
                         .HasColumnType("nvarchar(1)");
