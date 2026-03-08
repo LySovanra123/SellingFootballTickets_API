@@ -11,6 +11,15 @@ namespace SellingFootballTickets_API.Controllers
     {
         private readonly ServiceContext _context;
 
+        [NonAction]
+        public string GenerateUniqueCode()
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, 8)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
         public TicketController(ServiceContext context)
         {
             _context = context;
@@ -21,10 +30,30 @@ namespace SellingFootballTickets_API.Controllers
             return Ok(await _context.tickets.ToListAsync());
         }
         [HttpPost]
-        public async Task<ActionResult<List<Tickets>>> AddTicket(Tickets ticket)
+        public async Task<ActionResult<List<Tickets>>> AddTicket(Tickets ticket,int quantity)
         {
-            _context.tickets.Add(ticket);
+            var tickets = new List<Tickets>();
+
+            for (int i=0; i<quantity; i++)   
+            {
+                tickets.Add(new Tickets
+                {
+                    Code = GenerateUniqueCode(),
+                    Description = ticket.Description,
+                    Stadium = ticket.Stadium,
+                    Price = ticket.Price,
+                    KickOff = ticket.KickOff,
+                    DateSale = DateTime.Now,
+                    DateExpriseSale = ticket.DateExpriseSale,
+                    Block = ticket.Block,
+                    Row = ticket.Row,
+                    Seat = ticket.Seat + i,
+                    IsAvailable = true
+                });
+            }
+            _context.tickets.AddRange(tickets);
             await _context.SaveChangesAsync();
+
             return Ok(await _context.tickets.ToListAsync());
         }
         

@@ -12,7 +12,7 @@ using SellingFootballTickets_API.Data;
 namespace SellingFootballTickets_API.Migrations
 {
     [DbContext(typeof(ServiceContext))]
-    [Migration("20260307175153_InitialCreate")]
+    [Migration("20260308192238_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -143,9 +143,6 @@ namespace SellingFootballTickets_API.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
 
                     b.Property<string>("Row")
                         .IsRequired()

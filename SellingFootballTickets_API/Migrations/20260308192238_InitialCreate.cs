@@ -21,7 +21,6 @@ namespace SellingFootballTickets_API.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Stadium = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
                     KickOff = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateSale = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateExpriseSale = table.Column<DateTime>(type: "datetime2", nullable: false),
