@@ -5,5 +5,6 @@
         public int UserId { get; set; }
         public string Row { get; set; }
         public int Quantity { get; set; }
+        public string PaymentMethod { get; set; }
     }
 }

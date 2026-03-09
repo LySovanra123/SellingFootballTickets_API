@@ -54,11 +54,25 @@ namespace SellingFootballTickets_API.Controllers
             _context.orders.Add(order);
             await _context.SaveChangesAsync();
 
-            return Ok(new
+            var payment = new Payment
             {
                 OrderId = order.Id,
+                Amount = order.TotlePrice,
+                PaymentMethod = request.PaymentMethod,
+                PaymentDate = DateTime.Now,
+                Status = "Paid"
+            };
+
+            _context.payments.Add(payment);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                UsersId = user.Id,
+                OrderId = order.Id,
                 TotalPrice = order.TotlePrice,
-                Tickets = tickets.Select(t => new { t.Id, t.Row, t.Seat })
+                Tickets = tickets.Select(t => new { t.Id, t.Row, t.Seat }),
+                Payment = new { payment.Id, payment.Amount, payment.PaymentMethod, payment.Status }
             });
         }
     }

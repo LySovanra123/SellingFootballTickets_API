@@ -39,6 +39,16 @@ namespace SellingFootballTickets_API.Controllers
             }
             return Ok(tickets);
         }
+        [HttpGet("Saled")]
+        public async Task<ActionResult<List<Tickets>>> GetSeled()
+        {
+            var tickets = await _context.tickets.Where(t => t.IsAvailable == false).ToListAsync();
+            if (tickets == null || tickets.Count == 0)
+            {
+                return NotFound();
+            }
+            return Ok(tickets);
+        }
         [HttpPost]
         public async Task<ActionResult<List<Tickets>>> AddTicket(Tickets ticket,int quantity)
         {
