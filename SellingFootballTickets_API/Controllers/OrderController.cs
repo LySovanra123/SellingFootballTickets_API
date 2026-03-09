@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SellingFootballTickets_API.Data;
 using SellingFootballTickets_API.Models;
+using SellingFootballTickets_API.Service;
 
 namespace SellingFootballTickets_API.Controllers
 {
@@ -14,6 +15,51 @@ namespace SellingFootballTickets_API.Controllers
         public OrderController(ServiceContext context)
         {
             _context = context;
+        }
+        [HttpPost("Ticket")]
+        public async Task<IActionResult> BuyTicket([FromBody] BuyTicketRequest request)
+        {
+            var user = await _context.users.FindAsync(request.UserId);
+            if (user == null) return NotFound("User not found");
+
+            var tickets = await _context.tickets
+                .Where(t => t.Row.ToString() == request.Row && t.IsAvailable)
+                .OrderBy(t => t.Seat)
+                .Take(request.Quantity)
+                .ToListAsync();
+
+            if (tickets.Count < request.Quantity)
+                return BadRequest("Not enough tickets available");
+
+            var order = new Orders
+            {
+                UserId = user.Id,
+                OrderDate = DateTime.Now,
+                Status = "Pending",
+                TotlePrice = tickets.Sum(t => t.Price),
+                OrderTickets = new List<OrderTicket>()
+            };
+
+            foreach (var ticket in tickets)
+            {
+                order.OrderTickets.Add(new OrderTicket
+                {
+                    TicketId = ticket.Id,
+                    Quantity = 1
+                });
+
+                ticket.IsAvailable = false;
+            }
+
+            _context.orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                OrderId = order.Id,
+                TotalPrice = order.TotlePrice,
+                Tickets = tickets.Select(t => new { t.Id, t.Row, t.Seat })
+            });
         }
     }
 }

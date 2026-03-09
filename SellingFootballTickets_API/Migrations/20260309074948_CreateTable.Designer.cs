@@ -12,8 +12,8 @@ using SellingFootballTickets_API.Data;
 namespace SellingFootballTickets_API.Migrations
 {
     [DbContext(typeof(ServiceContext))]
-    [Migration("20260308192238_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260309074948_CreateTable")]
+    partial class CreateTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,6 +34,9 @@ namespace SellingFootballTickets_API.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<int>("TicketId")

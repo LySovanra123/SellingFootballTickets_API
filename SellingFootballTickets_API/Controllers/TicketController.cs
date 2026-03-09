@@ -29,6 +29,16 @@ namespace SellingFootballTickets_API.Controllers
         {
             return Ok(await _context.tickets.ToListAsync());
         }
+        [HttpGet("{row}")]
+        public async Task<ActionResult<List<Tickets>>> GetByRow(char row)
+        {
+            var tickets = await _context.tickets.Where(t => t.Row == row).ToListAsync();
+            if (tickets == null || tickets.Count == 0)
+            {
+                return NotFound();
+            }
+            return Ok(tickets);
+        }
         [HttpPost]
         public async Task<ActionResult<List<Tickets>>> AddTicket(Tickets ticket,int quantity)
         {
