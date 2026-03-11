@@ -6,7 +6,7 @@ using SellingFootballTickets_API.Models;
 
 namespace SellingFootballTickets_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -24,7 +24,7 @@ namespace SellingFootballTickets_API.Controllers
             var users = await _context.users.ToListAsync();
             return Ok(users);
         }
-        [HttpPost]
+        [HttpPost("/SignUp")]
         public async Task<ActionResult<Users>> CreateUser(Users user)
         {
             _context.users.Add(user);
