@@ -10,7 +10,8 @@ namespace SellingFootballTickets_API.Models
         public int OrderId { get; set; }
         [Required]
         public int TicketId { get; set; }
+        public int Quantity { get; set; }
         public Orders Order { get; set; }
-        public Tickets Ticket { get; set; }
+        public Tickets Ticket { get; set; } 
     }
 }
