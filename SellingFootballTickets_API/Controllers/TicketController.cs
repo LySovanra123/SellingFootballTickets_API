@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SellingFootballTickets_API.Data;
+using SellingFootballTickets_API.DTO;
 using SellingFootballTickets_API.Models;
+using SellingFootballTickets_API.Service;
 
 namespace SellingFootballTickets_API.Controllers
 {
@@ -27,7 +29,12 @@ namespace SellingFootballTickets_API.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Tickets>>> Get()
         {
-            return Ok(await _context.tickets.ToListAsync());
+            var tickets = await _context.tickets.Where(t => t.IsAvailable == true).ToListAsync();
+            if(tickets == null || tickets.Count == 0)
+            {
+                return NotFound();
+            }
+            return Ok(tickets);
         }
         [HttpGet("{row}")]
         public async Task<ActionResult<List<Tickets>>> GetByRow(char row)
@@ -39,14 +46,19 @@ namespace SellingFootballTickets_API.Controllers
             }
             return Ok(tickets);
         }
-        [HttpGet("Saled")]
-        public async Task<ActionResult<List<Tickets>>> GetSeled()
+        [HttpPost("YourOrder")]
+        public async Task<ActionResult<List<Tickets>>> GetYourOrder([FromBody] RequestViewOrder request)
         {
-            var tickets = await _context.tickets.Where(t => t.IsAvailable == false).ToListAsync();
-            if (tickets == null || tickets.Count == 0)
-            {
+            var tickets = await _context.orderTickets
+                .Where(ot => ot.Order.UserId == request.UserId &&
+                ot.Ticket.IsAvailable == false &&
+                ot.Ticket.DateExpriseSale > DateTime.Now)
+                .Select(ot => ot.Ticket)
+                .ToListAsync();
+
+            if (!tickets.Any())
                 return NotFound();
-            }
+
             return Ok(tickets);
         }
         [HttpPost]

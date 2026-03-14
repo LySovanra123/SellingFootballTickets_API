@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SellingFootballTickets_API.Data;
+using SellingFootballTickets_API.DTO;
 using SellingFootballTickets_API.Models;
 
 namespace SellingFootballTickets_API.Controllers
 {
-    [Route("api/")]
+    [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -24,7 +25,8 @@ namespace SellingFootballTickets_API.Controllers
             var users = await _context.users.ToListAsync();
             return Ok(users);
         }
-        [HttpPost("/SignUp")]
+        
+        [HttpPost("/api/SignUpUser")]
         public async Task<ActionResult<Users>> CreateUser(Users user)
         {
             _context.users.Add(user);
@@ -56,6 +58,17 @@ namespace SellingFootballTickets_API.Controllers
                 }
             }
             return NoContent();
+        }
+
+        [HttpPost("/api/SignInUser")]
+        public async Task<ActionResult<Users>> SignInUser([FromBody] RequestSignIn request)
+        {
+            var existingUser = await _context.users.FirstOrDefaultAsync(u => u.Email == request.Email && u.Password == request.Password);
+            if (existingUser == null)
+            {
+                return Unauthorized();
+            }
+            return Ok(existingUser);
         }
 
         private bool UserExists(int id)
