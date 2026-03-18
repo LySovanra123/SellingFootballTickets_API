@@ -144,6 +144,10 @@ namespace SellingFootballTickets_API.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<byte[]>("QRCode")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("Row")
                         .IsRequired()
                         .HasColumnType("nvarchar(1)");
