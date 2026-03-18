@@ -8,6 +8,7 @@ namespace SellingFootballTickets_API.Models
         public int Id { get; set; }
         [StringLength(20)]
         public string Code { get; set; }
+        public byte[] QRCode { get; set; }
         public string Description { get; set; }
         public string Stadium { get; set; }
         public decimal Price { get; set; }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QRCoder;
 using SellingFootballTickets_API.Data;
 using SellingFootballTickets_API.Models;
 using SellingFootballTickets_API.Service;
@@ -16,6 +17,7 @@ namespace SellingFootballTickets_API.Controllers
         {
             _context = context;
         }
+
         [HttpPost("Ticket")]
         public async Task<IActionResult> BuyTicket([FromBody] BuyTicketRequest request)
         {

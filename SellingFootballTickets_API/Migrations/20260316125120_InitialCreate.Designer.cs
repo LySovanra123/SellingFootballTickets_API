@@ -12,8 +12,8 @@ using SellingFootballTickets_API.Data;
 namespace SellingFootballTickets_API.Migrations
 {
     [DbContext(typeof(ServiceContext))]
-    [Migration("20260309074948_CreateTable")]
-    partial class CreateTable
+    [Migration("20260316125120_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -146,6 +146,10 @@ namespace SellingFootballTickets_API.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<byte[]>("QRCode")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Row")
                         .IsRequired()

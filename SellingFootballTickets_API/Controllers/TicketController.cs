@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QRCoder;
 using SellingFootballTickets_API.Data;
 using SellingFootballTickets_API.DTO;
 using SellingFootballTickets_API.Models;
@@ -20,6 +21,26 @@ namespace SellingFootballTickets_API.Controllers
             var random = new Random();
             return new string(Enumerable.Repeat(chars, 8)
               .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+        [NonAction]
+        public byte[] GenerateQRCode(string code)
+        {
+            using (var qrCenerator = new QRCodeGenerator())
+            {
+                var qrData = qrCenerator.CreateQrCode(code, QRCodeGenerator.ECCLevel.Q);
+                using (var qrCode = new QRCode(qrData))
+                {
+                    using (var bitmap = qrCode.GetGraphic(20))
+                    {
+                        using (var stream = new MemoryStream())
+                        {
+                            bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                            return stream.ToArray();
+                        }
+                    }
+                }
+
+            }
         }
 
         public TicketController(ServiceContext context)
@@ -71,6 +92,7 @@ namespace SellingFootballTickets_API.Controllers
                 tickets.Add(new Tickets
                 {
                     Code = GenerateUniqueCode(),
+                    QRCode = GenerateQRCode(GenerateUniqueCode()),
                     Description = ticket.Description,
                     Stadium = ticket.Stadium,
                     Price = ticket.Price,

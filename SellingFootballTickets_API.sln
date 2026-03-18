@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.37012.4 d17.14
+VisualStudioVersion = 17.14.37012.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SellingFootballTickets_API", "SellingFootballTickets_API\SellingFootballTickets_API.csproj", "{633ADAFB-4F52-4B9A-AE72-60A35FC4CE82}"
 EndProject

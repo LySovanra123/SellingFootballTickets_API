@@ -1,0 +1,56 @@
+﻿@page "/home"
+@model SellingFootballTickets_API.View.homeModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Ticket Admin</title>
+    <link rel="stylesheet" href="~/css/style_home.css">
+    <script src="~/js/script_home.js"></script>
+</head>
+<body>
+
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar">
+        <nav>
+            <ul>
+                <li><a href="#">Dashboard</a></li>
+                <li><a href="#">Tickets</a></li>
+                <li><a href="#">Users</a></li>
+                <li><a href="#">Matches</a></li>
+                <li><a href="#">Logout</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <h2>Welcome, Admin!</h2>
+        <div class="cards">
+            <div class="card">
+                <h3>Total Tickets</h3>
+                <p>350</p>
+            </div>
+            <div class="card">
+                <h3>Total Users</h3>
+                <p>120</p>
+            </div>
+            <div class="card">
+                <h3>Upcoming Matches</h3>
+                <p>5</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

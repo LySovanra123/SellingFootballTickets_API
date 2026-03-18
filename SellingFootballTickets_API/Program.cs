@@ -2,8 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using SellingFootballTickets_API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddRazorPages();
 
-// --- 1. ADD CORS SERVICE ---
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -32,6 +32,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.MapRazorPages();
 app.UseAuthorization();
+app.UseStaticFiles();
 app.MapControllers();
 app.Run();
