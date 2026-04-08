@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QRCoder;
 using SellingFootballTickets_API.Data;
+using SellingFootballTickets_API.DTO;
 using SellingFootballTickets_API.Models;
 using SellingFootballTickets_API.Service;
 
@@ -17,6 +19,9 @@ namespace SellingFootballTickets_API.Controllers
         {
             _context = context;
         }
+        //===============================================
+        //              Order Ticket
+        //===============================================
 
         [HttpPost("Ticket")]
         public async Task<IActionResult> BuyTicket([FromBody] BuyTicketRequest request)
@@ -76,6 +81,20 @@ namespace SellingFootballTickets_API.Controllers
                 Tickets = tickets.Select(t => new { t.Id, t.Row, t.Seat }),
                 Payment = new { payment.Id, payment.Amount, payment.PaymentMethod, payment.Status }
             });
+        }
+
+        //===============================================================
+        //              Get All Orders between two dates
+        //===============================================================
+        [Authorize(Policy = "adminOnly")]
+        [HttpPost("/api/GetPaymentsByMethods")]
+        public async Task<ActionResult<IEnumerable<Orders>>> GetOrdersBetweenDates([FromBody] RequestGetOrderDashboard request)
+        {
+            var orders = await _context.orders
+                .Where(o => o.OrderDate >= request.StartDate && o.OrderDate <= request.EndDate)
+                .Include(o => o.OrderTickets)
+                .ToListAsync();
+            return Ok(orders);
         }
     }
 }

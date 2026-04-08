@@ -16,6 +16,8 @@ namespace SellingFootballTickets_API.Data
         public DbSet<OrderTicket> orderTickets { get; set; }
         public DbSet<Payment> payments { get; set; }
 
+        public DbSet<BannerModel> Banners { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -24,6 +26,7 @@ namespace SellingFootballTickets_API.Data
             modelBuilder.Entity<Orders>().ToTable("orders");
             modelBuilder.Entity<OrderTicket>().ToTable("orderTickets");
             modelBuilder.Entity<Payment>().ToTable("payments");
+            modelBuilder.Entity<BannerModel>().ToTable("banners");
 
             // Configure relationships for Users and Orders
             modelBuilder.Entity<Users>()

@@ -231,17 +231,5 @@ namespace SellingFootballTickets_API.Controllers
             var users = await _context.users.Where(u => u.Name.Contains(name)).ToListAsync();
             return Ok(users);
         }
-
-        //Test
-        [HttpGet("/api/Test/{id}")]
-        public async Task<ActionResult<Users>> Test(int id)
-        {
-            var user = await _context.users.FindAsync(id);
-            if (user == null)
-            {
-                throw new NotFoundException($"User not found with id {id}");
-            }
-            return Ok(user);
-        }
     }
 }

@@ -157,7 +157,8 @@ namespace SellingFootballTickets_API.Controllers
                     Block = ticket.Block,
                     Row = ticket.Row,
                     Seat = ticket.Seat + i,
-                    IsAvailable = true
+                    IsAvailable = true,
+                    IsScanned = false
                 });
             }
             _context.tickets.AddRange(tickets);

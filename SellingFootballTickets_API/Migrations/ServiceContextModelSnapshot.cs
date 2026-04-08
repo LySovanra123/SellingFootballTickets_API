@@ -22,6 +22,33 @@ namespace SellingFootballTickets_API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("SellingFootballTickets_API.Models.BannerModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDisplay")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("ImageData")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<DateTime>("StartDisplay")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("banners", (string)null);
+                });
+
             modelBuilder.Entity("SellingFootballTickets_API.Models.OrderTicket", b =>
                 {
                     b.Property<int>("Id")
@@ -136,6 +163,9 @@ namespace SellingFootballTickets_API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsScanned")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("KickOff")

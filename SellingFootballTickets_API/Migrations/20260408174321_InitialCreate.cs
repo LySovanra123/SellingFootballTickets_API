@@ -12,6 +12,22 @@ namespace SellingFootballTickets_API.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "banners",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageData = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    StartDisplay = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDisplay = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_banners", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "tickets",
                 columns: table => new
                 {
@@ -28,7 +44,8 @@ namespace SellingFootballTickets_API.Migrations
                     Block = table.Column<int>(type: "int", nullable: false),
                     Row = table.Column<string>(type: "nvarchar(1)", nullable: false),
                     Seat = table.Column<int>(type: "int", nullable: false),
-                    IsAvailable = table.Column<bool>(type: "bit", nullable: false)
+                    IsAvailable = table.Column<bool>(type: "bit", nullable: false),
+                    IsScanned = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -152,6 +169,9 @@ namespace SellingFootballTickets_API.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "banners");
+
             migrationBuilder.DropTable(
                 name: "orderTickets");
 
