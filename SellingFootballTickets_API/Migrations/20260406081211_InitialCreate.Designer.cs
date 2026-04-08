@@ -12,7 +12,7 @@ using SellingFootballTickets_API.Data;
 namespace SellingFootballTickets_API.Migrations
 {
     [DbContext(typeof(ServiceContext))]
-    [Migration("20260316125120_InitialCreate")]
+    [Migration("20260406081211_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -199,6 +199,10 @@ namespace SellingFootballTickets_API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
