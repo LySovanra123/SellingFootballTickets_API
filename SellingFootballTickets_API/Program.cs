@@ -1,8 +1,11 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using SellingFootballTickets_API.Data;
+using SellingFootballTickets_API.middleware;
 using SellingFootballTickets_API.Models;
+using SellingFootballTickets_API.Service;
 using System.Security.Claims;
 using System.Text;
 
@@ -50,9 +53,22 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("adminOrUser", policy => policy.RequireRole("admin", "user"));
 });
 
+// bind SMTP config
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+
+// register OTP service
+builder.Services.AddTransient<IOTPService, ServiceEmail>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Selling Football Tickets API",
+        Version = "v1"
+    });
+});
 
 var app = builder.Build();
 
@@ -61,6 +77,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Use custom exception middleware
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");

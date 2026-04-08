@@ -5,7 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SellingFootballTickets_API.Data;
 using SellingFootballTickets_API.DTO;
+using SellingFootballTickets_API.exceptions;
 using SellingFootballTickets_API.Models;
+using SellingFootballTickets_API.Service;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -18,10 +20,14 @@ namespace SellingFootballTickets_API.Controllers
     {
 
         private readonly ServiceContext _context;
+        private readonly IOTPService _otpService;
+        // store OTP with timestamp
+        private static Dictionary<string, (string Otp, DateTime Expiry)> otpStorage = new();
 
-        public UserController(ServiceContext context)
+        public UserController(ServiceContext context, IOTPService otpService)
         {
             _context = context;
+            _otpService = otpService;
         }
         //==================================================
         //                 GetUsers
@@ -34,19 +40,61 @@ namespace SellingFootballTickets_API.Controllers
             return Ok(users);
         }
 
-        // =================================================
-        //                 SignUpUser
-        // =================================================
+        //==================================================
+        //                 RequestOTP
+        //==================================================
+
+        [AllowAnonymous]
+        [HttpPost("/api/request-otp")]
+        public async Task<IActionResult> RequestOTP([FromQuery] string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return BadRequest(new { message = "Email is required" });
+
+            string otp = _otpService.GenerateOTP();
+
+            otpStorage[email] = (otp, DateTime.UtcNow.AddMinutes(5));
+
+            await _otpService.SendOTPAsync(email, otp);
+
+            return Ok(new { message = "OTP sent successfully" });
+        }
+
+
+        //==================================================
+        //                 VerifyOTP and SignUp
+        //==================================================
         [AllowAnonymous]
         [HttpPost("/api/SignUpUser")]
-        public async Task<ActionResult<Users>> CreateUser(Users user)
+        public async Task<ActionResult<Users>> SignUp([FromBody] Users user, [FromQuery] string otp)
         {
+            if (user == null || string.IsNullOrWhiteSpace(user.Password))
+                return BadRequest(new { message = "Invalid user data" });
+
+            if (!otpStorage.ContainsKey(user.Email))
+                return BadRequest(new { message = "OTP not found or expired" });
+
+            var stored = otpStorage[user.Email];
+
+            if (stored.Otp != otp)
+                return BadRequest(new { message = "Invalid OTP" });
+
+            if (DateTime.UtcNow > stored.Expiry)
+            {
+                otpStorage.Remove(user.Email);
+                return BadRequest(new { message = "OTP has expired" });
+            }
+            otpStorage.Remove(user.Email);
+
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+
             _context.users.Add(user);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
 
+            return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
         }
+
+
         // =================================================
         //                 GetUserByEmail
         // =================================================
@@ -57,7 +105,7 @@ namespace SellingFootballTickets_API.Controllers
             var user = await _context.users.FirstOrDefaultAsync(u => u.Email == request.Email);
             if (user == null)
             {
-                return NotFound(new {message = "User not found" });
+                throw new NotFoundException($"User not found with email {request.Email}");
             }
 
             return Ok(user);
@@ -84,7 +132,7 @@ namespace SellingFootballTickets_API.Controllers
             {
                 if (!UserExists(id))
                 {
-                    return NotFound();
+                    throw new NotFoundException($"{nameof(UserExists)}");
                 }
                 else
                 {
@@ -148,7 +196,7 @@ namespace SellingFootballTickets_API.Controllers
             var user = await _context.users.FindAsync(id);
             if (user == null)
             {
-                return NotFound();
+                throw new NotFoundException($"User not found with id {id}");
             }
             user.Active = true;
             await _context.SaveChangesAsync();
@@ -166,7 +214,7 @@ namespace SellingFootballTickets_API.Controllers
             var user = await _context.users.FindAsync(id);
             if (user == null)
             {
-                return NotFound();
+                throw new NotFoundException($"User not found with id {id}");
             }
             user.Active = false;
             await _context.SaveChangesAsync();
@@ -182,6 +230,18 @@ namespace SellingFootballTickets_API.Controllers
         {
             var users = await _context.users.Where(u => u.Name.Contains(name)).ToListAsync();
             return Ok(users);
+        }
+
+        //Test
+        [HttpGet("/api/Test/{id}")]
+        public async Task<ActionResult<Users>> Test(int id)
+        {
+            var user = await _context.users.FindAsync(id);
+            if (user == null)
+            {
+                throw new NotFoundException($"User not found with id {id}");
+            }
+            return Ok(user);
         }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using QRCoder;
 using SellingFootballTickets_API.Data;
 using SellingFootballTickets_API.DTO;
+using SellingFootballTickets_API.exceptions;
 using SellingFootballTickets_API.Models;
 using SellingFootballTickets_API.Service;
 
@@ -66,7 +67,7 @@ namespace SellingFootballTickets_API.Controllers
             var tickets = await _context.tickets.Where(t => t.IsAvailable == true).ToListAsync();
             if (tickets == null || tickets.Count == 0)
             {
-                return NotFound();
+                throw new NotFoundException("Ticket not found");
             }
             return Ok(tickets);
         }
@@ -82,7 +83,7 @@ namespace SellingFootballTickets_API.Controllers
             var tickets = await _context.tickets.Where(t => t.Row == row).ToListAsync();
             if (tickets == null || tickets.Count == 0)
             {
-                return NotFound();
+                throw new NotFoundException("Ticket not found");
             }
             return Ok(tickets);
         }
@@ -105,7 +106,7 @@ namespace SellingFootballTickets_API.Controllers
                 .ToListAsync();
 
             if (!tickets.Any())
-                return NotFound(new { message = "Ticket not found" })
+                throw new NotFoundException("No tickets found for this order")
             ;
 
             return Ok(tickets);
@@ -176,12 +177,17 @@ namespace SellingFootballTickets_API.Controllers
         {
             var result = await _context.tickets
                 .Where(t => t.IsAvailable == true)
-                .GroupBy(t => new { t.Description, t.KickOff })
+                .GroupBy(t => new { t.Description, t.KickOff, t.Price, t.Stadium, t.DateExpriseSale, t.Row})
+                .OrderBy(t => t.Key.Row)
                 .Select(g => new
                 {
                     Description = g.Key.Description,
+                    Stadium = g.Key.Stadium,
                     KickOff = g.Key.KickOff,
-                    TicketCount = g.Count()
+                    Price = g.Key.Price,
+                    ExpriseSale = g.Key.DateExpriseSale,
+                    Row = g.Key.Row,
+                    TotalTicket = g.Count()
                 })
                 .ToListAsync();
 
@@ -189,29 +195,25 @@ namespace SellingFootballTickets_API.Controllers
         }
 
 
-
-        // Fix....
-
-
         //==============================================
         //         Update ticket by Row and KickOff
         //==============================================
         [HttpPost("/api/Ticket/Update")]
         [Authorize(Policy = "adminOnly")]
-        public async Task<IActionResult> UpdateTicketByRowAndKickOff(char row,[FromBody] RequestSelectMatch request,[FromBody] Tickets updatedTicket)
+        public async Task<IActionResult> UpdateTicketByRowAndKickOff([FromBody] UpdateTicketRequest request)
         {
-            var ticket = await _context.tickets.FirstOrDefaultAsync(t => t.Row == row && t.KickOff == request.KickOff && t.Description == request.Description);
+            var ticket = await _context.tickets.FirstOrDefaultAsync(t => t.Row == request.Row && t.KickOff == request.KickOff && t.Description == request.Description);
             if (ticket == null)
             {
-                return NotFound();
+                throw new NotFoundException("Ticket not found");
             }
-            ticket.Description = updatedTicket.Description;
-            ticket.Stadium = updatedTicket.Stadium;
-            ticket.Price = updatedTicket.Price;
-            ticket.DateExpriseSale = updatedTicket.DateExpriseSale;
-            ticket.Block = updatedTicket.Block;
-            ticket.Seat = updatedTicket.Seat;
-            ticket.IsAvailable = updatedTicket.IsAvailable;
+            ticket.Description = request.Description;
+            ticket.Stadium = request.Stadium;
+            ticket.Price = request.Price;
+            ticket.DateExpriseSale = request.DateExpriseSale;
+            ticket.Block = request.Block;
+            ticket.KickOff = request.KickOff;
+            ticket.Row = request.RowNew;
             await _context.SaveChangesAsync();
             return NoContent();
 
