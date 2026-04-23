@@ -53,7 +53,7 @@ namespace SellingFootballTickets_API.Controllers
 
             string otp = _otpService.GenerateOTP();
 
-            otpStorage[email] = (otp, DateTime.UtcNow.AddMinutes(5));
+            otpStorage[email] = (otp, DateTime.UtcNow.AddMinutes(3));
 
             await _otpService.SendOTPAsync(email, otp);
 
@@ -68,6 +68,12 @@ namespace SellingFootballTickets_API.Controllers
         [HttpPost("/api/SignUpUser")]
         public async Task<ActionResult<Users>> SignUp([FromBody] Users user, [FromQuery] string otp)
         {
+            var existingUser = await _context.users.FirstOrDefaultAsync(u => u.Email == user.Email);
+            if (existingUser != null)
+            {
+                return BadRequest(new { message = "User already exists" });
+            }
+
             if (user == null || string.IsNullOrWhiteSpace(user.Password))
                 return BadRequest(new { message = "Invalid user data" });
 
@@ -89,9 +95,10 @@ namespace SellingFootballTickets_API.Controllers
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
             _context.users.Add(user);
+            var token = GenerateJwtToken(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
+            return Ok(new { Token = token });
         }
 
 
@@ -231,5 +238,35 @@ namespace SellingFootballTickets_API.Controllers
             var users = await _context.users.Where(u => u.Name.Contains(name)).ToListAsync();
             return Ok(users);
         }
+
+
+        //==================================================
+        //                Forget Password
+        //==================================================
+        [AllowAnonymous]
+        [HttpPut("/api/ForgetPassword")]
+        public async Task<IActionResult> ForgetPassword([FromBody] dto_forgetPassword request, [FromBody] string otp)
+        {
+            var user = await _context.users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found with email " + request.Email });
+            }
+            if(!otpStorage.ContainsKey(request.Email))
+                return BadRequest(new { message = "OTP not found or expired" });
+
+            var stored = otpStorage[request.Email];
+
+            if (stored.Otp != otp)
+                return BadRequest(new { message = "Invalid OTP" });
+
+            if (otpStorage.ContainsKey(request.Email))
+            {
+                user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                await _context.SaveChangesAsync();
+            }
+            return Ok(new { Message = "Password has been successfully updated." });
+        }
+
     }
 }
